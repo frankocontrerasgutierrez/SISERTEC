@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;font-family:Arial;background:#fff;width:1300px} .wrap{padding:20px}
+.capa{border:2px solid #1f4e79;border-radius:10px;margin-bottom:16px;padding:10px 14px}
+.capa h2{margin:0 0 8px;font-size:16px;color:#1f4e79} .fila{display:flex;gap:10px;flex-wrap:wrap}
+.b{border:1px solid #9db4cf;background:#eef4fb;border-radius:6px;padding:8px 10px;font-size:13px;flex:1;min-width:150px}
+.b b{display:block;color:#1f4e79;margin-bottom:3px} .f{text-align:center;font-size:22px;color:#2e75b6;margin:-8px 0 4px}
+.c1{background:#f6fbff}.c2{background:#fbfaf2}.c3{background:#f4fbf6} .nota{font-size:12px;color:#555}
+.ext{border-style:dashed}
+</style></head><body><div class="wrap">
+<div class="capa c1"><h2>1. Capa de presentación (cliente web)</h2><div class="fila">
+<div class="b"><b>Navegador del personal</b>Recepcionista, Técnico, Administrador (requiere inicio de sesión)</div>
+<div class="b"><b>Navegador del cliente</b>Consulta pública /consulta/ con N.º de orden + código</div>
+<div class="b"><b>Plantillas Django + CSS</b>templates/*.html, static/css/sisertec.css (HTML generado en el servidor)</div></div></div>
+<div class="f">⇅ HTTP(S) · formularios con token CSRF · cookie de sesión HttpOnly</div>
+<div class="capa ext"><h2>Servidor web / aplicación (despliegue previsto, no implementado aún)</h2><div class="fila">
+<div class="b"><b>Nginx</b>HTTPS (TLS), archivos estáticos, proxy inverso</div><div class="b"><b>Gunicorn</b>Servidor WSGI que ejecuta Django (sisertec/wsgi.py)</div>
+<div class="b"><b>Prototipo actual</b>python manage.py runserver (desarrollo local)</div></div></div>
+<div class="f">⇅</div>
+<div class="capa c2"><h2>2. Capa de lógica de negocio (Django · Python 3)</h2><div class="fila">
+<div class="b"><b>sisertec/urls.py</b>Enrutamiento de URLs</div>
+<div class="b"><b>Vistas (views.py)</b>core · clientes · inventario · ordenes. Control de acceso con @rol_requerido</div>
+<div class="b"><b>Formularios (forms.py)</b>Validación: RUT módulo 11, teléfono, correo, montos ≥ 0, stock</div>
+<div class="b"><b>ordenes/servicios.py</b>Máquina de 9 estados, historial, notificación, descuento de stock transaccional</div>
+<div class="b"><b>django.contrib.auth</b>Usuarios, grupos (roles), hash PBKDF2, sesiones</div>
+<div class="b ext"><b>Correo (send_mail)</b>Consola en desarrollo · SMTP en producción</div></div></div>
+<div class="f">⇅ ORM de Django (consultas parametrizadas)</div>
+<div class="capa c3"><h2>3. Capa de datos</h2><div class="fila">
+<div class="b"><b>Modelos (models.py)</b>Cliente, Equipo, OrdenTrabajo, Diagnostico, Presupuesto, Reparacion, DetalleRepuesto, Repuesto, HistorialEstado, Notificacion</div>
+<div class="b"><b>Migraciones</b>*/migrations/0001_initial.py · database/sisertec_mysql.sql</div>
+<div class="b"><b>MySQL 9.5 (InnoDB, utf8mb4)</b>Motor verificado; conexión con mysqlclient, usuario sisertec_app y credenciales en .env</div>
+<div class="b"><b>SQLite</b>Respaldo solo para desarrollo si DB_ENGINE no se define</div></div></div>
+<p class="nota">Diagrama elaborado a partir de la estructura real del repositorio SISERTEC. Recuadros con borde punteado = componentes externos o previstos.</p>
+</div></body></html>

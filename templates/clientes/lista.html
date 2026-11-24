@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes{% endblock %}
+{% block contenido %}
+<h1>Clientes</h1>
+<form method="get" class="filtros">
+  <input type="search" name="q" value="{{ q }}" placeholder="Buscar por nombre o RUT">
+  <button class="btn btn-sec">Buscar</button>
+  {% if es_recepcionista or es_admin %}<a class="btn" href="{% url 'crear_cliente' %}">+ Nuevo cliente</a>{% endif %}
+</form>
+<table class="tabla">
+  <thead><tr><th>RUT</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Equipos</th></tr></thead>
+  <tbody>{% for c in clientes %}
+  <tr><td>{{ c.rut }}</td><td><a href="{% url 'detalle_cliente' c.pk %}">{{ c.nombre }}</a></td>
+      <td>{{ c.email }}</td><td>{{ c.telefono }}</td><td>{{ c.equipos.count }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="vacio">Sin resultados.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

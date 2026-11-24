@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}Consultar orden{% endblock %}
+{% block contenido %}
+<h1>Consulta del estado de su equipo</h1>
+<p class="sub">Ingrese el número de orden y el código de consulta entregados en recepción.</p>
+<form method="get" class="tarjeta formulario fila">
+  {% for campo in form %}
+  <div class="campo">{{ campo.label_tag }} {{ campo }}{% for e in campo.errors %}<small class="error">{{ e }}</small>{% endfor %}</div>
+  {% endfor %}
+  <button class="btn">Consultar</button>
+</form>
+{% if no_encontrada %}<div class="alerta alerta-error">No se encontró una orden con esos datos.</div>{% endif %}
+{% if orden %}
+<div class="tarjeta">
+  <h2>{{ orden }} · {{ orden.equipo }}</h2>
+  <p>Estado actual: <span class="chip est-{{ orden.estado }}">{{ orden.get_estado_display }}</span></p>
+  <p>Fecha de ingreso: {{ orden.fecha_ingreso|date:"d/m/Y H:i" }}</p>
+  <h3>Historial</h3>
+  <ul class="linea-tiempo">
+    {% for h in historial %}<li><strong>{{ h.get_estado_nuevo_display }}</strong> — {{ h.fecha|date:"d/m/Y H:i" }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

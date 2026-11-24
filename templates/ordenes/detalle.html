@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titulo %}{{ orden }}{% endblock %}
+{% block contenido %}
+<h1>{{ orden }} <span class="chip est-{{ orden.estado }}">{{ orden.get_estado_display }}</span></h1>
+
+<div class="grilla">
+  <div class="tarjeta">
+    <h2>Datos de la orden</h2>
+    <dl>
+      <dt>Cliente</dt><dd><a href="{% url 'detalle_cliente' orden.equipo.cliente.pk %}">{{ orden.equipo.cliente }}</a></dd>
+      <dt>Equipo</dt><dd>{{ orden.equipo }} {% if orden.equipo.numero_serie %}(S/N {{ orden.equipo.numero_serie }}){% endif %}</dd>
+      <dt>Falla reportada</dt><dd>{{ orden.falla_reportada }}</dd>
+      <dt>Recepcionista</dt><dd>{{ orden.recepcionista.get_full_name|default:orden.recepcionista }}</dd>
+      <dt>Técnico</dt><dd>{{ orden.tecnico.get_full_name|default:"Sin asignar" }}</dd>
+      <dt>Ingreso</dt><dd>{{ orden.fecha_ingreso|date:"d/m/Y H:i" }}</dd>
+      {% if orden.fecha_entrega %}<dt>Entrega</dt><dd>{{ orden.fecha_entrega|date:"d/m/Y H:i" }}</dd>{% endif %}
+      {% if es_recepcionista or es_admin %}<dt>Código consulta cliente</dt><dd><code>{{ orden.codigo_consulta }}</code></dd>{% endif %}
+    </dl>
+    {% if orden.diagnostico %}<h3>Diagnóstico</h3><p>{{ orden.diagnostico.descripcion }}</p>{% endif %}
+    {% if orden.presupuesto %}<h3>Presupuesto</h3>
+      <p>{{ orden.presupuesto.detalle }}<br><strong>${{ orden.presupuesto.monto|floatformat:0 }}</strong> — {{ orden.presupuesto.get_respuesta_display }}</p>{% endif %}
+    {% if orden.reparacion %}<h3>Reparación</h3><p>{{ orden.reparacion.descripcion_trabajo }}</p>
+      <ul>{% for d in orden.reparacion.detalles.all %}<li>{{ d }} (${{ d.precio_unitario|floatformat:0 }} c/u)</li>{% endfor %}</ul>{% endif %}
+  </div>
+
+  <div class="tarjeta">
+    <h2>Acción siguiente</h2>
+    {% if orden.estado == "INGRESADA" %}
+      {% if es_admin %}
+      <form method="post" action="{% url 'asignar_tecnico' orden.pk %}">{% csrf_token %}{{ form_asignar.as_p }}<button class="btn">Asignar técnico</button></form>
+      {% else %}<p>Esperando que el administrador asigne un técnico.</p>{% endif %}
+    {% elif orden.estado == "ASIGNADA" %}
+      {% if es_mi_orden %}<form method="post" action="{% url 'iniciar_diagnostico' orden.pk %}">{% csrf_token %}<button class="btn">Iniciar diagnóstico</button></form>
+      {% else %}<p>Esperando al técnico asignado.</p>{% endif %}
+    {% elif orden.estado == "EN_DIAGNOSTICO" %}
+      {% if es_mi_orden %}<form method="post" action="{% url 'registrar_diagnostico' orden.pk %}">{% csrf_token %}{{ form_diag.as_p }}<button class="btn">Guardar diagnóstico y presupuesto</button></form>
+      {% else %}<p>El técnico está diagnosticando el equipo.</p>{% endif %}
+    {% elif orden.estado == "ESPERANDO_APROBACION" %}
+      {% if es_recepcionista or es_admin %}<form method="post" action="{% url 'responder_presupuesto' orden.pk %}">{% csrf_token %}{{ form_respuesta.as_p }}<button class="btn">Registrar respuesta del cliente</button></form>
+      {% else %}<p>Esperando la respuesta del cliente al presupuesto.</p>{% endif %}
+    {% elif orden.estado == "EN_REPARACION" %}
+      {% if es_mi_orden %}
+      <form method="post" action="{% url 'registrar_reparacion' orden.pk %}">{% csrf_token %}{{ form_reparacion.as_p }}<button class="btn">Registrar reparación</button></form>
+      <hr>
+      <form method="post" action="{% url 'pendiente_repuesto' orden.pk %}">{% csrf_token %}{{ form_obs.as_p }}<button class="btn btn-sec">Marcar pendiente por repuesto</button></form>
+      {% else %}<p>Equipo en reparación.</p>{% endif %}
+    {% elif orden.estado == "PENDIENTE_REPUESTO" %}
+      {% if es_mi_orden %}<form method="post" action="{% url 'pendiente_repuesto' orden.pk %}">{% csrf_token %}<button class="btn">Repuesto recibido: reanudar reparación</button></form>
+      {% else %}<p>Esperando la llegada del repuesto.</p>{% endif %}
+    {% elif orden.estado == "LISTA_ENTREGA" %}
+      {% if es_recepcionista or es_admin %}<form method="post" action="{% url 'registrar_entrega' orden.pk %}">{% csrf_token %}<button class="btn">Registrar entrega al cliente</button></form>
+      {% else %}<p>Equipo listo para ser retirado.</p>{% endif %}
+    {% else %}<p>Orden cerrada.</p>{% endif %}
+  </div>
+</div>
+
+<div class="grilla">
+  <div class="tarjeta">
+    <h2>Historial de estados</h2>
+    <table class="tabla">
+      <thead><tr><th>Fecha</th><th>De</th><th>A</th><th>Usuario</th><th>Observación</th></tr></thead>
+      <tbody>{% for h in historial %}
+        <tr><td>{{ h.fecha|date:"d/m/Y H:i" }}</td><td>{{ h.get_estado_anterior_display|default:"—" }}</td>
+        <td><span class="chip est-{{ h.estado_nuevo }}">{{ h.get_estado_nuevo_display }}</span></td>
+        <td>{{ h.usuario.get_full_name|default:h.usuario }}</td><td>{{ h.observacion }}</td></tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+  <div class="tarjeta">
+    <h2>Notificaciones al cliente</h2>
+    <ul>{% for n in notificaciones %}<li>{{ n.fecha|date:"d/m H:i" }} · {{ n.asunto }} · {% if n.enviada %}enviada a {{ n.destinatario }}{% else %}error: {{ n.error }}{% endif %}</li>
+    {% empty %}<li>Sin notificaciones.</li>{% endfor %}</ul>
+  </div>
+</div>
+{% endblock %}

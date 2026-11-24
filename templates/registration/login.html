@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Iniciar sesión{% endblock %}
+{% block contenido %}
+<div class="login tarjeta">
+  <h1>Ingreso del personal</h1>
+  <p class="sub">Recepcionista, técnico o administrador</p>
+  {% if form.errors %}<div class="alerta alerta-error">Usuario o contraseña incorrectos.</div>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="campo"><label for="id_username">Usuario</label>{{ form.username }}</div>
+    <div class="campo"><label for="id_password">Contraseña</label>{{ form.password }}</div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-ancho">Ingresar</button>
+  </form>
+  <p class="sub">¿Es cliente? <a href="{% url 'consulta_cliente' %}">Consulte el estado de su orden aquí</a>.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}SISERTEC{% endblock %} · SISERTEC</title>
+  <link rel="stylesheet" href="{% static 'css/sisertec.css' %}">
+</head>
+<body>
+<header class="barra">
+  <a class="marca" href="{% url 'panel' %}">SISERTEC</a>
+  {% if user.is_authenticated %}
+  <nav>
+    <a href="{% url 'panel' %}">Panel</a>
+    <a href="{% url 'lista_ordenes' %}">Órdenes</a>
+    <a href="{% url 'lista_clientes' %}">Clientes</a>
+    <a href="{% url 'lista_repuestos' %}">Inventario</a>
+    {% if es_admin %}<a href="{% url 'admin:auth_user_changelist' %}">Usuarios</a>{% endif %}
+  </nav>
+  <div class="usuario">
+    {{ user.get_full_name|default:user.username }}
+    <span class="rol">{% if user.is_superuser %}Superusuario{% elif es_admin %}Administrador{% elif es_tecnico %}Técnico{% elif es_recepcionista %}Recepcionista{% endif %}</span>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn-link">Cerrar sesión</button></form>
+  </div>
+  {% else %}
+  <nav><a href="{% url 'consulta_cliente' %}">Consultar mi orden</a><a href="{% url 'login' %}">Ingreso personal</a></nav>
+  {% endif %}
+</header>
+<main class="contenido">
+  {% for m in messages %}<div class="alerta alerta-{{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block contenido %}{% endblock %}
+</main>
+<footer class="pie">SISERTEC · Gestión de servicio técnico · Copiapó</footer>
+</body>
+</html>

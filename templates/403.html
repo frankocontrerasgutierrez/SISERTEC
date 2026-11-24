@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block titulo %}Acceso denegado{% endblock %}
+{% block contenido %}
+<div class="tarjeta"><h1>403 · Acceso denegado</h1><p>Su rol no tiene permiso para realizar esta acción.</p>
+<a class="btn" href="{% url 'panel' %}">Volver al panel</a></div>
+{% endblock %}

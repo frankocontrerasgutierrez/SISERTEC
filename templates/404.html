@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block titulo %}No encontrado{% endblock %}
+{% block contenido %}
+<div class="tarjeta"><h1>404 · Página no encontrada</h1><p>El recurso solicitado no existe.</p>
+<a class="btn" href="{% url 'panel' %}">Volver al panel</a></div>
+{% endblock %}

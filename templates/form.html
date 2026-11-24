@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<h1>{{ titulo }}</h1>
+<form method="post" class="tarjeta formulario" novalidate>
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for campo in form %}
+  <div class="campo{% if campo.errors %} con-error{% endif %}">
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+    {{ campo }}
+    {% for e in campo.errors %}<small class="error">{{ e }}</small>{% endfor %}
+  </div>
+  {% endfor %}
+  <button class="btn">Guardar</button>
+  <a class="btn btn-sec" href="javascript:history.back()">Cancelar</a>
+</form>
+{% endblock %}

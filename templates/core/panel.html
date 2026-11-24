@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}Panel{% endblock %}
+{% block contenido %}
+<h1>Panel principal</h1>
+<div class="acciones">
+  {% if es_recepcionista or es_admin %}
+  <a class="btn" href="{% url 'crear_cliente' %}">+ Cliente</a>
+  <a class="btn" href="{% url 'crear_equipo' %}">+ Equipo</a>
+  <a class="btn" href="{% url 'crear_orden' %}">+ Orden de trabajo</a>
+  {% endif %}
+  {% if es_admin %}<a class="btn btn-sec" href="{% url 'crear_repuesto' %}">+ Repuesto</a>{% endif %}
+</div>
+
+<div class="kpis">
+  <div class="kpi"><span>{{ total_ordenes }}</span>Órdenes totales</div>
+  <div class="kpi"><span>{{ total_clientes }}</span>Clientes</div>
+  <div class="kpi {% if bajo_stock %}kpi-alerta{% endif %}"><span>{{ bajo_stock|length }}</span>Repuestos en stock mínimo</div>
+</div>
+
+{% if bajo_stock %}
+<div class="alerta alerta-warning"><strong>Alerta de inventario:</strong>
+  {% for r in bajo_stock %}{{ r.nombre }} ({{ r.stock }}/{{ r.stock_minimo }}){% if not forloop.last %}, {% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<h2>Órdenes por estado</h2>
+<div class="estados">
+  {% for valor, etiqueta, n in resumen %}
+  <a class="estado-caja est-{{ valor }}" href="{% url 'lista_ordenes' %}?estado={{ valor }}"><span>{{ n }}</span>{{ etiqueta }}</a>
+  {% endfor %}
+</div>
+
+{% if mis_ordenes is not None %}
+<h2>Mis órdenes asignadas</h2>
+{% include "ordenes/_tabla.html" with ordenes=mis_ordenes %}
+{% endif %}
+
+<h2>Órdenes recientes</h2>
+{% include "ordenes/_tabla.html" with ordenes=recientes %}
+{% endblock %}

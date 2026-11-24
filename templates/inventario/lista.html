@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Inventario{% endblock %}
+{% block contenido %}
+<h1>Inventario de repuestos</h1>
+{% if bajo_stock %}<div class="alerta alerta-warning"><strong>{{ bajo_stock|length }} repuesto(s) en stock mínimo.</strong> Se recomienda reponer.</div>{% endif %}
+{% if es_admin %}<p><a class="btn" href="{% url 'crear_repuesto' %}">+ Nuevo repuesto</a></p>{% endif %}
+<table class="tabla">
+  <thead><tr><th>Código</th><th>Nombre</th><th>Stock</th><th>Mínimo</th><th>Precio</th><th>Estado</th>{% if es_admin %}<th></th>{% endif %}</tr></thead>
+  <tbody>{% for r in repuestos %}
+  <tr class="{% if r.bajo_stock %}fila-alerta{% endif %}">
+    <td>{{ r.codigo }}</td><td>{{ r.nombre }}</td><td>{{ r.stock }}</td><td>{{ r.stock_minimo }}</td>
+    <td>${{ r.precio_unitario|floatformat:0 }}</td>
+    <td>{% if r.bajo_stock %}<span class="chip chip-alerta">Stock mínimo</span>{% else %}<span class="chip chip-ok">OK</span>{% endif %}</td>
+    {% if es_admin %}<td><a class="btn btn-peq" href="{% url 'editar_repuesto' r.pk %}">Editar</a></td>{% endif %}
+  </tr>
+  {% empty %}<tr><td colspan="7" class="vacio">Sin repuestos.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

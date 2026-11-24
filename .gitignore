@@ -1,0 +1,19 @@
+# Secretos y datos locales
+.env
+*.sqlite3
+db.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+
+# Django
+staticfiles/
+media/
+
+# Entregables y documentos pesados
+ENTREGA_EVALUACION_3/*.zip
+*.log

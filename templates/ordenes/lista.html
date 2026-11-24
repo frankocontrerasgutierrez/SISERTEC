@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Órdenes de trabajo{% endblock %}
+{% block contenido %}
+<h1>Órdenes de trabajo</h1>
+<form method="get" class="filtros">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {% for valor, etiqueta in estados %}<option value="{{ valor }}" {% if valor == estado %}selected{% endif %}>{{ etiqueta }}</option>{% endfor %}
+  </select>
+  {% if es_tecnico %}<label><input type="checkbox" name="mias" value="1" onchange="this.form.submit()" {% if request.GET.mias %}checked{% endif %}> Solo mis órdenes</label>{% endif %}
+  {% if es_recepcionista or es_admin %}<a class="btn" href="{% url 'crear_orden' %}">+ Nueva orden</a>{% endif %}
+</form>
+{% include "ordenes/_tabla.html" %}
+{% endblock %}
